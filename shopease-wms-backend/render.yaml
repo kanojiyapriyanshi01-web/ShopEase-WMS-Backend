@@ -1,0 +1,55 @@
+# render.yaml — Deploy ShopEase WMS backend to Render
+
+services:
+  - type: web
+    name: shopease-wms-backend
+    runtime: go
+    buildCommand: go build -o bin/server ./cmd/server
+    startCommand: ./bin/server
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: shopease-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: shopease-redis
+          type: redis
+          property: connectionString
+      - key: WMS_JWT_SECRET
+        generateValue: true
+      - key: WMS_SHOPEASE_SECRET
+        generateValue: true
+      - key: ENV
+        value: production
+      - key: PORT
+        value: 8081
+    healthCheckPath: /health
+
+databases:
+  - name: shopease-postgres
+    databaseName: shopease_db
+    user: shopease
+
+# ─── DEPLOYMENT STEPS ────────────────────────────────────────
+# 1. Push wms backend to GitHub:
+#    git init
+#    git remote add origin https://github.com/kanojiyapriyanshi01-web/ShopEase-WMS-Backend.git
+#    git add . && git commit -m "feat: initial WMS backend"
+#    git push -u origin main
+#
+# 2. Create Render web service from this repo
+#    Build: go build -o bin/server ./cmd/server
+#    Start: ./bin/server
+#
+# 3. Run migration on Render shell:
+#    psql $DATABASE_URL -f migrations/001_wms_schema.sql
+#
+# 4. Set env vars from .env.example in Render dashboard
+#
+# 5. Flutter WMS app:
+#    flutter create shopease_wms
+#    Copy lib/ structure from flutter_wms_app.dart
+#    Add packages from pubspec.yaml section
+#    Set WMS_API_URL=https://shopease-wms.onrender.com/api/v1
+#    flutter build apk --dart-define=WMS_API_URL=https://shopease-wms.onrender.com/api/v1
