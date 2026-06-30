@@ -246,24 +246,35 @@ func (h *Handler) ReceiveWebhook(c *gin.Context) {
     }
 
     var payload struct {
-		Event   string          `json:"event"` // order.created, order.cancelled
-		OrderID uuid.UUID       `json:"order_id"`
-		Data    json.RawMessage `json:"data"`
-	}
+        Event string          `json:"event"`
+        Data  json.RawMessage `json:"data"`
+    }
 
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    if err := c.ShouldBindJSON(&payload); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	switch payload.Event {
-	case "order.created":
-		go h.handleNewOrder(payload.OrderID, payload.Data)
-	case "order.cancelled":
-		go h.handleCancelledOrder(payload.OrderID)
-	case "return.created":
-		go h.handleNewReturn(payload.OrderID, payload.Data)
-	}
+    var inner struct {
+        ID      string `json:"id"`
+        OrderID string `json:"order_id"`
+    }
+    json.Unmarshal(payload.Data, &inner)
+
+    idStr := inner.ID
+    if idStr == "" {
+        idStr = inner.OrderID
+    }
+    orderID, _ := uuid.Parse(idStr)
+
+    switch payload.Event {
+    case "order.created":
+        go h.handleNewOrder(orderID, payload.Data)
+    case "order.cancelled":
+        go h.handleCancelledOrder(orderID)
+    case "return.created":
+        go h.handleNewReturn(orderID, payload.Data)
+    }
 
 	c.JSON(http.StatusOK, gin.H{"received": true})
 }
