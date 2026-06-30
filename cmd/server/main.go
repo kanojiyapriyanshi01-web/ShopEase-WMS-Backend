@@ -1,4 +1,4 @@
-package main
+﻿package main
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"shopease-wms/internal/auth"
+	"shopease-wms/internal/handlers/auth"
 	"shopease-wms/internal/db"
 	"shopease-wms/internal/handlers/analytics"
 	"shopease-wms/internal/handlers/audits"
