@@ -3,6 +3,7 @@ package orders
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -74,12 +75,14 @@ func (h *Handler) List(c *gin.Context) {
 	var orders []models.WarehouseOrder
 	for rows.Next() {
 		var o models.WarehouseOrder
-		if err := rows.Scan(
+		var scanErr error
+		if scanErr = rows.Scan(
 			&o.ID, &o.ShopeaseOrderID, &o.WarehouseID, &o.Status,
 			&o.Priority, &o.PickerID, &o.PackerID, &o.DispatcherID,
 			&o.PickingStartedAt, &o.PickingDoneAt, &o.PackingDoneAt,
 			&o.ShippedAt, &o.DeliveredAt, &o.Notes, &o.CreatedAt, &o.UpdatedAt, &o.WarehouseName,
-		); err != nil {
+		); scanErr != nil {
+			log.Printf("SCAN ERROR: %v", scanErr)
 			continue
 		}
 		orders = append(orders, o)
