@@ -78,7 +78,7 @@ func (h *Handler) List(c *gin.Context) {
 			&o.ID, &o.ShopeaseOrderID, &o.WarehouseID, &o.Status,
 			&o.Priority, &o.PickerID, &o.PackerID, &o.DispatcherID,
 			&o.PickingStartedAt, &o.PickingDoneAt, &o.PackingDoneAt,
-			&o.ShippedAt, &o.DeliveredAt, &o.Notes, &o.CreatedAt, &o.UpdatedAt,
+			&o.ShippedAt, &o.DeliveredAt, &o.Notes, &o.CreatedAt, &o.UpdatedAt, &o.WarehouseName,
 		); err != nil {
 			continue
 		}
@@ -353,4 +353,5 @@ func (h *Handler) notifyShopEase(orderID uuid.UUID, status string) {
 func (h *Handler) sendPickerNotification(pickerID, orderID uuid.UUID) {
 	// Send FCM push notification to picker's device
 }
+
 

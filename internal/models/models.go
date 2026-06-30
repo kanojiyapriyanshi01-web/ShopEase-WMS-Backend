@@ -101,6 +101,7 @@ type WarehouseOrder struct {
 	Notes             string     `json:"notes" db:"notes"`
 	CreatedAt         time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time  `json:"updated_at" db:"updated_at"`
+	WarehouseName     string     `json:"warehouse_name,omitempty" db:"warehouse_name"`
 }
 
 // ─── Picking ─────────────────────────────────────────────────────────────────
