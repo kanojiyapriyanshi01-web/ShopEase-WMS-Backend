@@ -1,4 +1,4 @@
-﻿package orders
+package orders
 
 import (
 	"database/sql"
@@ -32,7 +32,7 @@ func (h *Handler) List(c *gin.Context) {
 	offset := 0
 
 	query := `
-		SELECT wo.*, w.name as warehouse_name
+		SELECT wo.id, wo.shopease_order_id, wo.warehouse_id, wo.status, wo.priority, wo.picker_id, wo.packer_id, wo.dispatcher_id, wo.picking_started_at, wo.picking_done_at, wo.packing_done_at, wo.shipped_at, wo.delivered_at, wo.notes, wo.created_at, wo.updated_at, w.name as warehouse_name
 		FROM wms.warehouse_orders wo
 		JOIN wms.warehouses w ON w.id = wo.warehouse_id
 		WHERE 1=1`
@@ -353,3 +353,4 @@ func (h *Handler) notifyShopEase(orderID uuid.UUID, status string) {
 func (h *Handler) sendPickerNotification(pickerID, orderID uuid.UUID) {
 	// Send FCM push notification to picker's device
 }
+
