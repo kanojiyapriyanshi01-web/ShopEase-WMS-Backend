@@ -105,6 +105,7 @@ func (h *Handler) Detail(c *gin.Context) {
 	}
 
 	var order models.WarehouseOrder
+	var detailNotesNull sql.NullString
 	err = h.db.QueryRow(`
 		SELECT id, shopease_order_id, warehouse_id, status, priority,
 			   picker_id, packer_id, dispatcher_id,
@@ -114,7 +115,7 @@ func (h *Handler) Detail(c *gin.Context) {
 		&order.ID, &order.ShopeaseOrderID, &order.WarehouseID, &order.Status,
 		&order.Priority, &order.PickerID, &order.PackerID, &order.DispatcherID,
 		&order.PickingStartedAt, &order.PickingDoneAt, &order.PackingDoneAt,
-		&order.ShippedAt, &order.DeliveredAt, &order.Notes, &order.CreatedAt, &order.UpdatedAt,
+		&order.ShippedAt, &order.DeliveredAt, &detailNotesNull, &order.CreatedAt, &order.UpdatedAt,
 	)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
@@ -125,6 +126,7 @@ func (h *Handler) Detail(c *gin.Context) {
 		return
 	}
 
+	order.Notes = detailNotesNull.String
 	c.JSON(http.StatusOK, order)
 }
 
