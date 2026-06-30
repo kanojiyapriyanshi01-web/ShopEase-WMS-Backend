@@ -51,20 +51,20 @@ func main() {
 
 	// Auth routes (public)
 	authHandler := auth.NewHandler(database)
+	oh := orders.NewHandler(database)
 	r.POST("/api/v1/auth/login", authHandler.Login)
+	r.POST("/api/v1/orders/webhook", oh.ReceiveWebhook) // public, secret-verified
 	r.POST("/api/v1/auth/refresh", authHandler.RefreshToken)
 
 	// Protected routes
 	api := r.Group("/api/v1", middleware.JWTAuth())
 	{
 		// Orders
-		oh := orders.NewHandler(database)
 		api.GET("/orders", middleware.RequireRole("super_admin", "warehouse_manager", "dispatcher"), oh.List)
 		api.GET("/orders/:id", oh.Detail)
 		api.PUT("/orders/:id/status", middleware.RequireRole("super_admin", "warehouse_manager"), oh.UpdateStatus)
 		api.POST("/orders/:id/assign", middleware.RequireRole("super_admin", "warehouse_manager"), oh.Assign)
-		api.POST("/orders/webhook", oh.ReceiveWebhook) // from ShopEase backend
-
+	
 		// Inventory
 		ih := inventory.NewHandler(database)
 		api.GET("/inventory", ih.List)

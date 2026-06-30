@@ -1,9 +1,10 @@
-package orders
+﻿package orders
 
 import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -238,7 +239,13 @@ func (h *Handler) Assign(c *gin.Context) {
 
 // ReceiveWebhook - POST /api/v1/orders/webhook (called by ShopEase backend)
 func (h *Handler) ReceiveWebhook(c *gin.Context) {
-	var payload struct {
+    secret := c.GetHeader("X-WMS-Secret")
+    if secret != os.Getenv("WMS_SHOPEASE_SECRET") {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid secret"})
+        return
+    }
+
+    var payload struct {
 		Event   string          `json:"event"` // order.created, order.cancelled
 		OrderID uuid.UUID       `json:"order_id"`
 		Data    json.RawMessage `json:"data"`
