@@ -75,16 +75,18 @@ func (h *Handler) List(c *gin.Context) {
 	var orders []models.WarehouseOrder
 	for rows.Next() {
 		var o models.WarehouseOrder
+		var notesNull sql.NullString
 		var scanErr error
 		if scanErr = rows.Scan(
 			&o.ID, &o.ShopeaseOrderID, &o.WarehouseID, &o.Status,
 			&o.Priority, &o.PickerID, &o.PackerID, &o.DispatcherID,
 			&o.PickingStartedAt, &o.PickingDoneAt, &o.PackingDoneAt,
-			&o.ShippedAt, &o.DeliveredAt, &o.Notes, &o.CreatedAt, &o.UpdatedAt, &o.WarehouseName,
+			&o.ShippedAt, &o.DeliveredAt, &notesNull, &o.CreatedAt, &o.UpdatedAt, &o.WarehouseName,
 		); scanErr != nil {
 			log.Printf("SCAN ERROR: %v", scanErr)
 			continue
 		}
+		o.Notes = notesNull.String
 		orders = append(orders, o)
 	}
 
